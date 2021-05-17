@@ -1,0 +1,39 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Mon May 10 23:05:27 2021
+[*]
+[dumpfile] "/home/zerotoasic/project/vga_timing.vcd"
+[dumpfile_mtime] "Mon May 10 23:01:18 2021"
+[dumpfile_size] 934810
+[savefile] "/home/zerotoasic/project/vga_timing.gtkw"
+[timestart] 0
+[size] 2488 1271
+[pos] -1 -1
+*-16.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 233
+[signals_width] 142
+[sst_expanded] 1
+[sst_vpaned_height] 378
+@28
+vga_timing.clk
+vga_timing.reset
+@200
+-
+@25
+vga_timing.h_counter[9:0]
+vga_timing.h_state[1:0]
+@28
+vga_timing.h_sync
+vga_timing.h_active
+@200
+-
+@25
+vga_timing.v_counter[8:0]
+vga_timing.v_state[1:0]
+@28
+vga_timing.v_sync
+vga_timing.v_active
+-
+vga_timing.active
+[pattern_trace] 1
+[pattern_trace] 0
