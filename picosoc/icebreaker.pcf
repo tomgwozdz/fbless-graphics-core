@@ -1,5 +1,6 @@
 # 12 MHz clock
-set_io clk        35
+set_io clk          35
+set_io reset_button 10
 
 # RS232
 set_io ser_rx      6
@@ -23,3 +24,8 @@ set_io led5       26
 # Onboard LEDs
 set_io ledr_n     11
 set_io ledg_n     37
+
+# Buttons
+set_io button1    20
+set_io button2    19
+set_io button3    18

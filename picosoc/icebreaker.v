@@ -16,6 +16,7 @@
  *  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
+`default_nettype none
 
 `ifdef PICOSOC_V
 `error "icebreaker.v must be read before picosoc.v!"
@@ -25,6 +26,7 @@
 
 module icebreaker (
 	input clk,
+	input reset_button,
 
 	output ser_tx,
 	input ser_rx,
@@ -34,6 +36,10 @@ module icebreaker (
 	output led3,
 	output led4,
 	output led5,
+
+	input button1,
+	input button2,
+	input button3,
 
 	output ledr_n,
 	output ledg_n,
@@ -47,13 +53,20 @@ module icebreaker (
 );
 	parameter integer MEM_WORDS = 32768;
 
+
+	// Reset logic
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
 	always @(posedge clk) begin
 		reset_cnt <= reset_cnt + !resetn;
+		if (!reset_button) begin
+			reset_cnt <= 0;
+		end
 	end
 
+
+	// Hook up LEDs and buttons
 	wire [7:0] leds;
 
 	assign led1 = leds[1];
@@ -65,6 +78,14 @@ module icebreaker (
 	assign ledr_n = !leds[6];
 	assign ledg_n = !leds[7];
 
+	wire [2:0] buttons;
+
+	assign buttons[0] = button1;
+	assign buttons[1] = button2;
+	assign buttons[2] = button3;
+
+
+	// Hook up flash
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
 	wire flash_io1_oe, flash_io1_do, flash_io1_di;
 	wire flash_io2_oe, flash_io2_do, flash_io2_di;
@@ -80,6 +101,8 @@ module icebreaker (
 		.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
 	);
 
+
+	// SOC memory bus
 	wire        iomem_valid;
 	reg         iomem_ready;
 	wire [3:0]  iomem_wstrb;
@@ -87,25 +110,106 @@ module icebreaker (
 	wire [31:0] iomem_wdata;
 	reg  [31:0] iomem_rdata;
 
-	reg [31:0] gpio;
-	assign leds = gpio;
+
+	// Wishbone bus
+	reg [31:0] wbm_adr_o;
+	reg [31:0] wbm_dat_o;
+	wire [31:0] wbm_dat_i;
+	reg wbm_we_o;
+	reg [3:0] wbm_sel_o;
+	reg wbm_stb_o;
+	wire wbm_ack_i;
+	reg wbm_cyc_o;
+
+
+	// Wishbone multiplex
+    wire [31:0] leds_wbm_dat_i;
+    wire leds_wbm_ack_i;
+    assign wbm_ack_i = leds_wbm_ack_i;
+    assign wbm_dat_i = leds_wbm_dat_i;
+
+
+	// Wishbone master implementation
+	localparam IDLE = 2'b00;
+	localparam WBSTART = 2'b01;
+	localparam WBEND = 2'b10;
+
+	reg [1:0] state;
+
+	wire we;
+	assign we = (iomem_wstrb[0] | iomem_wstrb[1] | iomem_wstrb[2] | iomem_wstrb[3]);
 
 	always @(posedge clk) begin
-		if (!resetn) begin
-			gpio <= 0;
+		if (~resetn) begin
+			wbm_adr_o <= 0;
+			wbm_dat_o <= 0;
+			wbm_we_o <= 0;
+			wbm_sel_o <= 0;
+			wbm_stb_o <= 0;
+			wbm_cyc_o <= 0;
+			state <= IDLE;
 		end else begin
-			iomem_ready <= 0;
-			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 03) begin
-				iomem_ready <= 1;
-				iomem_rdata <= gpio;
-				if (iomem_wstrb[0]) gpio[ 7: 0] <= iomem_wdata[ 7: 0];
-				if (iomem_wstrb[1]) gpio[15: 8] <= iomem_wdata[15: 8];
-				if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
-				if (iomem_wstrb[3]) gpio[31:24] <= iomem_wdata[31:24];
-			end
-		end
-	end
+			case (state)
+				IDLE: begin
+                    // wishbone is 0x0300_0000 and above
+					if (iomem_valid & iomem_addr[31:24] >= 8'h03) begin
+						wbm_adr_o <= iomem_addr;
+						wbm_dat_o <= iomem_wdata;
+						wbm_we_o <= we;
+						wbm_sel_o <= iomem_wstrb;
 
+						wbm_stb_o <= 1'b1;
+						wbm_cyc_o <= 1'b1;
+						state <= WBSTART;
+					end else begin
+						iomem_ready <= 1'b0;
+
+						wbm_stb_o <= 1'b0;
+						wbm_cyc_o <= 1'b0;
+						wbm_we_o <= 1'b0;
+					end
+				end
+				WBSTART:begin
+					if (wbm_ack_i) begin
+						iomem_rdata <= wbm_dat_i;
+						iomem_ready <= 1'b1;
+
+						state <= WBEND;
+
+						wbm_stb_o <= 1'b0;
+						wbm_cyc_o <= 1'b0;
+						wbm_we_o <= 1'b0;
+					end
+				end
+				WBEND: begin
+					iomem_ready <= 1'b0;
+
+					state <= IDLE;
+				end
+				default:
+					state <= IDLE;
+			endcase
+		end
+	end	
+
+
+	// Instantiate the Wishbone LEDs/buttons
+    wb_buttons_leds #(.BASE_ADDRESS(32'h03_00_00_00)) wb_buttons_leds_0 (
+        .clk        (clk),
+        .reset      (~resetn),
+        .i_wb_cyc   (wbm_cyc_o),
+        .i_wb_stb   (wbm_stb_o),
+        .i_wb_we    (wbm_we_o),
+        .i_wb_addr  (wbm_adr_o),
+        .i_wb_data  (wbm_dat_o),
+        .o_wb_ack   (leds_wbm_ack_i),
+        .o_wb_data  (leds_wbm_dat_i),
+        .buttons    (buttons),
+        .leds       (leds)
+    );
+
+
+	// Instantiate the picosoc
 	picosoc #(
 		.BARREL_SHIFTER(0),
 		.ENABLE_MULDIV(0),
