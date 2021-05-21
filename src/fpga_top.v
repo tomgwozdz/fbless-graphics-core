@@ -10,8 +10,6 @@ module fpga_top
     output P1B1, P1B2, P1B3, P1B4, P1B7, P1B8, P1B9, P1B10
 );
 
-    wire vga_clk;
-
     wire [3:0] vga_r;
     wire [3:0] vga_g;
     wire [3:0] vga_b;
@@ -26,24 +24,24 @@ module fpga_top
     wire reset;
     assign reset = ~RESET_N;
 
-    SB_PLL40_PAD #(
-        .FEEDBACK_PATH("SIMPLE"),
-        .PLLOUT_SELECT("GENCLK"),
-        .DIVR(4'b0000),
-        .DIVF(7'b1000010),
-        .DIVQ(3'b101),
-        .FILTER_RANGE(3'b001)
-    ) vga_clk_pll (
-        .PACKAGEPIN(CLK),
-        .PLLOUTCORE(vga_clk),
-        .RESETB(1'b1),
-        .BYPASS(1'b0)
-    );
-
     vga_timing vga_timing_0
     (
-        .clk (vga_clk),
+        .clk (CLK),
         .reset (reset),
+        .enabled (1'b1),
+
+        .h_sync_start (18),     // 56 / 3 = 18.6
+        .h_sync_end (36),       // (56 + 56) / 3 = 37.3
+        .h_active_start (63),   // (56 + 56 + 80) / 3 = 64
+        .h_active_end (276),    // (56 + 56 + 80 + 640) / 3 = 277.3
+        .h_pol (1),
+
+        .v_sync_start (1),      // 1
+        .v_sync_end (3),        // 1 + 3 = 4
+        .v_active_start (28),   // 1 + 3 + 25 = 29
+        .v_active_end (508),    // 1 + 3 + 25 + 480 = 509
+        .v_pol (1),
+
         .h_sync (vga_hs),
         .v_sync (vga_vs),
         .h_active (vga_h_active),

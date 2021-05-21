@@ -49,7 +49,10 @@ module icebreaker (
 	inout  flash_io0,
 	inout  flash_io1,
 	inout  flash_io2,
-	inout  flash_io3
+	inout  flash_io3,
+
+    output P1A1, P1A2, P1A3, P1A4, P1A7, P1A8, P1A9, P1A10,
+    output P1B1, P1B2, P1B3, P1B4, P1B7, P1B8, P1B9, P1B10	
 );
 	parameter integer MEM_WORDS = 32768;
 
@@ -124,9 +127,11 @@ module icebreaker (
 
 	// Wishbone multiplex
     wire [31:0] leds_wbm_dat_i;
+    wire [31:0] vga_wbm_dat_i;
     wire leds_wbm_ack_i;
-    assign wbm_ack_i = leds_wbm_ack_i;
-    assign wbm_dat_i = leds_wbm_dat_i;
+    wire vga_wbm_ack_i;
+    assign wbm_ack_i = leds_wbm_ack_i | vga_wbm_ack_i;
+    assign wbm_dat_i = leds_wbm_dat_i | vga_wbm_dat_i;
 
 
 	// Wishbone master implementation
@@ -207,6 +212,44 @@ module icebreaker (
         .buttons    (buttons),
         .leds       (leds)
     );
+
+
+    // Instantiate VGA
+    wire [3:0] vga_r;
+    wire [3:0] vga_g;
+    wire [3:0] vga_b;
+
+    wire vga_hs;
+    wire vga_vs;
+
+
+    vga_core vga_core_0 (
+    	.clk (clk),
+    	.reset (~resetn),
+
+    	.wb_addr_i (wbm_adr_o),
+    	.wb_data_i (wbm_dat_o),
+    	.wb_data_o (vga_wbm_dat_i),
+
+    	.wb_sel_i (wbm_sel_o),
+    	.wb_we_i (wbm_we_o),
+    	.wb_stb_i (wbm_stb_o),
+    	.wb_cyc_i (wbm_cyc_o),
+
+    	.wb_ack_o (vga_wbm_ack_i),
+
+    	.vga_r (vga_r),
+    	.vga_g (vga_g),
+    	.vga_b (vga_b),
+
+	    .vga_hs (vga_hs),
+    	.vga_vs (vga_vs)    
+	);
+
+    assign {     P1A1,     P1A2,     P1A3,     P1A4,     P1A7,     P1A8,     P1A9,    P1A10 } =
+           { vga_r[3], vga_r[2], vga_r[1], vga_r[0], vga_b[3], vga_b[2], vga_b[1], vga_b[0] };
+    assign {     P1B1,     P1B2,     P1B3,     P1B4,     P1B7,     P1B8,     P1B9,    P1B10 } =
+           { vga_g[3], vga_g[2], vga_g[1], vga_g[0],   vga_hs,   vga_vs,     1'b0,     1'b0 };
 
 
 	// Instantiate the picosoc

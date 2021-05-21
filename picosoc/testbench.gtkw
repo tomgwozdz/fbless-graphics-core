@@ -1,0 +1,57 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri May 21 01:49:28 2021
+[*]
+[dumpfile] "/home/zerotoasic/project/picosoc/testbench.vcd"
+[dumpfile_mtime] "Fri May 21 01:46:22 2021"
+[dumpfile_size] 92996752
+[savefile] "/home/zerotoasic/project/picosoc/testbench.gtkw"
+[timestart] 0
+[size] 2488 1271
+[pos] -101 -101
+*-29.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] testbench.
+[treeopen] testbench.uut.
+[treeopen] testbench.uut.soc.
+[treeopen] testbench.uut.vga_core_0.
+[sst_width] 233
+[signals_width] 182
+[sst_expanded] 1
+[sst_vpaned_height] 378
+@28
+testbench.uut.vga_core_0.clk
+@22
+testbench.uut.vga_core_0.wb_addr_i[31:0]
+testbench.uut.vga_core_0.wb_data_i[31:0]
+testbench.uut.vga_core_0.wb_data_o[31:0]
+testbench.uut.vga_core_0.wb_sel_i[3:0]
+@28
+testbench.uut.vga_core_0.wb_stb_i
+testbench.uut.vga_core_0.wb_we_i
+testbench.uut.vga_core_0.wb_cyc_i
+testbench.uut.vga_core_0.wb_ack_o
+testbench.uut.vga_core_0.enabled
+testbench.uut.vga_core_0.vga_hs
+testbench.uut.vga_core_0.vga_vs
+@22
+testbench.uut.vga_core_0.h_active_start[9:0]
+testbench.uut.vga_core_0.h_active_end[9:0]
+testbench.uut.vga_core_0.h_sync_end[9:0]
+testbench.uut.vga_core_0.h_sync_start[9:0]
+testbench.uut.vga_core_0.v_active_start[9:0]
+testbench.uut.vga_core_0.v_active_end[9:0]
+testbench.uut.vga_core_0.v_sync_end[9:0]
+testbench.uut.vga_core_0.v_sync_start[9:0]
+@28
+testbench.uut.vga_core_0.v_pol
+testbench.uut.vga_core_0.h_pol
+@22
+testbench.uut.vga_core_0.vga_b[3:0]
+testbench.uut.vga_core_0.vga_g[3:0]
+testbench.uut.vga_core_0.vga_r[3:0]
+@28
+testbench.uut.vga_core_0.vga_h_active
+@29
+testbench.uut.vga_core_0.vga_v_active
+[pattern_trace] 1
+[pattern_trace] 0

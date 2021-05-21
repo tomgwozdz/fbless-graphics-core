@@ -1,0 +1,68 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Fri May 21 01:06:05 2021
+[*]
+[dumpfile] "/home/zerotoasic/project/vga_core.vcd"
+[dumpfile_mtime] "Fri May 21 01:05:08 2021"
+[dumpfile_size] 1550796
+[savefile] "/home/zerotoasic/project/vga_core.gtkw"
+[timestart] 0
+[size] 2488 1271
+[pos] -1 -1
+*-16.214935 259300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] vga_core.
+[sst_width] 233
+[signals_width] 313
+[sst_expanded] 1
+[sst_vpaned_height] 378
+@28
+vga_core.clk
+vga_core.reset
+@200
+-
+@22
+vga_core.wb_addr_i[31:0]
+vga_core.wb_data_i[31:0]
+vga_core.wb_data_o[31:0]
+vga_core.wb_sel_i[3:0]
+@28
+vga_core.wb_stb_i
+vga_core.wb_cyc_i
+vga_core.wb_we_i
+vga_core.wb_ack_o
+vga_core.enabled
+@200
+-
+@24
+vga_core.h_sync_start[9:0]
+vga_core.h_sync_end[9:0]
+vga_core.h_active_start[9:0]
+vga_core.h_active_end[9:0]
+@28
+vga_core.h_pol
+@200
+-
+@25
+vga_core.v_sync_start[9:0]
+vga_core.v_sync_end[9:0]
+vga_core.v_active_start[9:0]
+vga_core.v_active_end[9:0]
+@28
+vga_core.v_pol
+@200
+-
+@28
+vga_core.vga_hs
+vga_core.vga_vs
+@22
+vga_core.vga_r[3:0]
+vga_core.vga_g[3:0]
+vga_core.vga_b[3:0]
+@200
+-
+@28
+vga_core.vga_h_active
+vga_core.vga_v_active
+vga_core.vga_active
+[pattern_trace] 1
+[pattern_trace] 0

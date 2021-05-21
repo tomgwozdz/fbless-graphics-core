@@ -28,7 +28,7 @@ vga_timing.h_active
 @200
 -
 @25
-vga_timing.v_counter[8:0]
+vga_timing.v_counter[9:0]
 vga_timing.v_state[1:0]
 @28
 vga_timing.v_sync

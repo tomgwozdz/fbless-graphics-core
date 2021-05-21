@@ -37,6 +37,11 @@ extern uint32_t sram;
 #define reg_uart_data (*(volatile uint32_t*)0x02000008)
 #define reg_leds (*(volatile uint32_t*)0x03000000)
 
+#define vga_h_reg (*(volatile uint32_t*)0x04000000)
+#define vga_v_reg (*(volatile uint32_t*)0x04000004)
+#define vga_m_reg (*(volatile uint32_t*)0x04000008)
+#define vga_c_reg (*(volatile uint32_t*)0x0400000c)
+
 // --------------------------------------------------------
 
 extern uint32_t flashio_worker_begin;
@@ -663,6 +668,23 @@ void cmd_echo()
 
 // --------------------------------------------------------
 
+
+static unsigned long x=123456789, y=362436069, z=521288629;
+
+unsigned long xorshf96(void) {          //period 2^96-1
+unsigned long t;
+    x ^= x << 16;
+    x ^= x >> 5;
+    x ^= x << 1;
+
+   t = x;
+   x = y;
+   y = z;
+   z = t ^ x ^ y;
+
+  return z;
+}
+
 void main()
 {
 	reg_leds = 31;
@@ -673,6 +695,19 @@ void main()
 	set_flash_qspi_flag();
 
 	reg_leds = 127;
+
+	vga_h_reg = 0x120903f;
+	vga_v_reg = 0x100c1c;
+	vga_m_reg = 0x4451fc;
+	vga_c_reg = 0;
+
+	uint16_t colors = 0xf;
+
+	while (1) {
+		colors = (colors << 4) + (colors >> 12);
+		vga_c_reg = colors;
+	}
+
 	while (getchar_prompt("Press ENTER to continue..\n") != '\r') { /* wait */ }
 
 	print("\n");
