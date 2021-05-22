@@ -34,21 +34,33 @@ async def test_vga_core(dut):
     vga = VgaTest(dut)
     await vga.reset()
 
-    # reg 0:
-    # h_sync_start = 18 (00 0001 0010 )
+    # reg 0c:
+    await vga.wbs.send_cycle([WBOp(0x0400000c, dat=0xc0000002)])
+
+    # reg 10:
+    await vga.wbs.send_cycle([WBOp(0x04000010, dat=0x40000002)])
+
+    # reg 14:
+    # background 0 size = 6 (000110)
+    # background 1 size = 6 (000110)
+    # = 0x186
+    await vga.wbs.send_cycle([WBOp(0x04000014, dat=0x186)])
+
+    # reg 00:
+    # h_sync_start = 18 (00 0001 0010)
     # h_sync_end = 36 (00 0010 0100)
     # h_active_start = 63 (00 0011 1111)
     # = 0x120903f
     await vga.wbs.send_cycle([WBOp(0x04000000, dat=0x120903f)])
 
-    # reg 4:
+    # reg 04:
     # v_sync_start = 1 (00 0000 0001)
     # v_sync_end = 3 (00 0000 0011)
     # v_active_start = 28 (00 0001 1100)
     # = 0x100c1c
     await vga.wbs.send_cycle([WBOp(0x04000004, dat=0x100c1c)])
 
-    # reg 8:
+    # reg 08:
     # enabled = 1 (1)
     # h_pol = 0 (0)
     # v_pol = 0 (0)
@@ -56,5 +68,19 @@ async def test_vga_core(dut):
     # v_active_end = 508 (01 1111 1100)
     # = 0x4451fc
     await vga.wbs.send_cycle([WBOp(0x04000008, dat=0x4451fc)])
+
+    # reg 18:
+    # check v active = 1
+    # check h active = 0
+    # check vertical count = 0
+    # check horizontal count = 1
+    # expected v active = 1
+    # expected h active = 0
+    # expected vertical count = 0 (00 0000 0000)
+    # expected horizontal count = 0 (00 0000 0001)
+    # = 0x2600001
+    await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2600001)])
+    await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2600001)])
+
 
     await ClockCycles(dut.clk, 800 * 50)

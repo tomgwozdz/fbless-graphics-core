@@ -22,13 +22,11 @@ module vga_timing (
     output reg h_sync,
     output reg v_sync,
     output reg h_active,
-    output reg v_active
+    output reg v_active,
+
+	output reg [9:0] h_counter,
+	output reg [9:0] v_counter
 );
-
-
-	reg [9:0] h_counter;
-	reg [9:0] v_counter;
-
 
 	always @(posedge clk) begin
 		if (reset) begin

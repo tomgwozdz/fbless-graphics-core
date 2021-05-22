@@ -5,6 +5,8 @@ import random
 
 async def reset(dut):
     dut.reset <= 1
+    dut.h_pol <= 0;
+    dut.v_pol <= 0;
 
     await ClockCycles(dut.clk, 5)
     dut.reset <= 0;

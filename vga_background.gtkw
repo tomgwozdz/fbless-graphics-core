@@ -1,0 +1,51 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sat May 22 20:20:09 2021
+[*]
+[dumpfile] "/home/zerotoasic/project/vga_background.vcd"
+[dumpfile_mtime] "Sat May 22 20:19:08 2021"
+[dumpfile_size] 14075
+[savefile] "/home/zerotoasic/project/vga_background.gtkw"
+[timestart] 549300
+[size] 2488 1271
+[pos] -1 -1
+*-16.000000 882200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] vga_background.
+[sst_width] 272
+[signals_width] 355
+[sst_expanded] 1
+[sst_vpaned_height] 378
+@28
+vga_background.clk
+vga_background.reset
+@200
+-
+@22
+vga_background.vga_background_shifter_0.pixels[31:0]
+@28
+vga_background.vga_background_shifter_0.shift
+vga_background.vga_background_shifter_0.color_index[1:0]
+@200
+-
+@22
+vga_background.vga_background_shifter_1.pixels[31:0]
+@28
+vga_background.vga_background_shifter_1.shift
+vga_background.vga_background_shifter_1.color_index[1:0]
+@200
+-
+@28
+vga_background.active
+@25
+vga_background.h_counter[9:0]
+@22
+vga_background.pixel_size_count[5:0]
+@28
+vga_background.bg_color_index[1:0]
+vga_background.shifter_index
+@200
+-
+@24
+vga_background.shift_count[4:0]
+[pattern_trace] 1
+[pattern_trace] 0

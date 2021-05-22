@@ -40,7 +40,11 @@ extern uint32_t sram;
 #define vga_h_reg (*(volatile uint32_t*)0x04000000)
 #define vga_v_reg (*(volatile uint32_t*)0x04000004)
 #define vga_m_reg (*(volatile uint32_t*)0x04000008)
-#define vga_c_reg (*(volatile uint32_t*)0x0400000c)
+#define vga_bg0_reg (*(volatile uint32_t*)0x0400000c)
+#define vga_bg1_reg (*(volatile uint32_t*)0x04000010)
+#define vga_bgs_reg (*(volatile uint32_t*)0x04000014)
+#define vga_wait_reg (*(volatile uint32_t*)0x04000018)
+
 
 // --------------------------------------------------------
 
@@ -696,16 +700,38 @@ void main()
 
 	reg_leds = 127;
 
+	vga_bg0_reg = 0x6c6c6c6c;
+	vga_bg1_reg = 0xe4e4e4e4;
+	vga_bgs_reg = 0x186;
+
 	vga_h_reg = 0x120903f;
 	vga_v_reg = 0x100c1c;
 	vga_m_reg = 0x4451fc;
-	vga_c_reg = 0;
 
-	uint16_t colors = 0xf;
+	asm(
+		// a5 = 0x4000 0018
+		// a6 = 0x0044 51fc
+		// a2 = 0x4000 0010
+		// a3 = 0xe4e4 e4e4
+		"lui a5, 0x4000;"
+		"addi a5, a5, 0x18;"
+		"lui a6, 0x2600;"
+		"addi a6, a6, 1;"
+
+		"lui a2, 0x4000;"
+		"addi a2, a2, 0x10;"
+		"lui a3, 0xe4e4e;"
+		"addi a3, a3, 0x4e4;"
+
+		"loop_forever:"
+		"sw a6, 0(a5);"
+		"sw a3, 0(a2);"
+		"j loop_forever;"
+	);
 
 	while (1) {
-		colors = (colors << 4) + (colors >> 12);
-		vga_c_reg = colors;
+		// vga_wait_reg = 0x2600001;
+		// vga_bg1_reg = 0xe4e4e4e4;
 	}
 
 	while (getchar_prompt("Press ENTER to continue..\n") != '\r') { /* wait */ }
