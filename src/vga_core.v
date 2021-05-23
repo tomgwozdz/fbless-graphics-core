@@ -66,8 +66,8 @@ module vga_core (
     output reg [3:0] vga_g,
     output reg [3:0] vga_b,
 
-    output vga_hs,
-    output vga_vs    
+    output reg vga_hs,
+    output reg vga_vs    
 );
 
     reg [9:0] h_sync_start;
@@ -84,6 +84,9 @@ module vga_core (
     reg v_pol;
 
     reg enabled;
+
+    wire vga_h_sync;
+    wire vga_v_sync;
 
     wire vga_h_active;
     wire vga_v_active;
@@ -130,8 +133,8 @@ module vga_core (
         .v_active_end (v_active_end),
         .v_pol (v_pol),
 
-        .h_sync (vga_hs),
-        .v_sync (vga_vs),
+        .h_sync (vga_h_sync),
+        .v_sync (vga_v_sync),
         .h_active (vga_h_active),
         .v_active (vga_v_active),
 
@@ -144,11 +147,7 @@ module vga_core (
         .clk (clk),
         .reset (reset),
 
-        .h_counter (h_counter),
-
-        .h_active_start (h_active_start),
-        .h_active_end (h_active_end),
-
+        .h_active (vga_h_active),
         .v_active (vga_v_active),
 
         .bg_pixels (bg_pixels),
@@ -241,7 +240,10 @@ module vga_core (
         end
     end
 
-    always @(*) begin
+    always @(posedge clk) begin
+        vga_hs <= vga_h_sync;
+        vga_vs <= vga_v_sync;
+
         if (vga_h_active && vga_v_active) begin
             if (bg_color_index == 0) begin
                 vga_r <= 4'b0000;

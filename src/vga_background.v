@@ -40,11 +40,7 @@ module vga_background (
     input clk,
     input reset,
 
-	input [9:0] h_counter,
-
-    input [9:0] h_active_start,
-    input [9:0] h_active_end,
-
+    input h_active,
     input v_active,
 
     input [31:0] bg_pixels,
@@ -57,7 +53,7 @@ module vga_background (
     output reg [1:0] bg_color_index
 );
 
-	wire active = h_counter >= h_active_start && h_counter < h_active_end && v_active;
+	wire active = h_active && v_active;
 
 	wire [1:0] color_0;
 	wire [1:0] color_1;

@@ -17,9 +17,7 @@ async def test_vga_background_simple(dut):
 
     await reset(dut)
 
-    dut.h_counter <= 0
-    dut.h_active_start <= 4
-    dut.h_active_end <= 68
+    dut.h_active <= 0;
     dut.v_active <= 1
     dut.bg_size_0 <= 1
     dut.bg_size_1 <= 1
@@ -39,16 +37,17 @@ async def test_vga_background_simple(dut):
     dut.bg_pixels_load_0 <= 0
     dut.bg_pixels_load_1 <= 0
 
-    count = 0;
-    
-    for i in range(200):
-        dut.h_counter <= count
+    for i in range(3):
+        await ClockCycles(dut.clk, 2)
 
-        count = count + 1
-        if (count == 72):
-            count = 0
+        dut.h_active <= 1;
 
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.clk, 64)
+
+        dut.h_active <= 0;
+
+        await ClockCycles(dut.clk, 2)
+
 
 @cocotb.test()
 async def test_vga_background_repeat_0(dut):
@@ -57,9 +56,7 @@ async def test_vga_background_repeat_0(dut):
 
     await reset(dut)
 
-    dut.h_counter <= 0
-    dut.h_active_start <= 4
-    dut.h_active_end <= 84
+    dut.h_active <= 0;
     dut.v_active <= 1
     dut.bg_size_0 <= 1
     dut.bg_size_1 <= 0
@@ -79,14 +76,14 @@ async def test_vga_background_repeat_0(dut):
     dut.bg_pixels_load_0 <= 0
     dut.bg_pixels_load_1 <= 0
 
-    count = 0;
-    
-    for i in range(200):
-        dut.h_counter <= count
+    for i in range(3):
+        await ClockCycles(dut.clk, 2)
 
-        count = count + 1
-        if (count == 90):
-            count = 0
+        dut.h_active <= 1;
 
-        await ClockCycles(dut.clk, 1)
+        await ClockCycles(dut.clk, 80)
+
+        dut.h_active <= 0;
+
+        await ClockCycles(dut.clk, 2)
 
