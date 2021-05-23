@@ -2,35 +2,13 @@
 `timescale 1ns/1ns
 
 module vga_background_shifter (
-    input clk,
-    input reset,
-
-	input shift,
-
-	input [31:0] in_pixels,
-	input load_pixels,
+	input [31:0] pixels,
+    input [3:0] pixel_select,
 
 	output [1:0] color_index
 );
 	
-	reg [31:0] pixels;
-
-	assign color_index = pixels[31:30];
-
-	always @(posedge clk) begin
-		if (reset) begin
-			pixels <= 0;
-		end else begin
-			if (load_pixels) begin
-				pixels <= in_pixels;
-			end
-
-			if (shift) begin
-				pixels <= { pixels[29:0], pixels[31:30] };
-			end
-
-		end
-	end
+	assign color_index = pixels[((16 - pixel_select) * 2) - 1 -: 2];
 
 endmodule
 
@@ -43,9 +21,8 @@ module vga_background (
     input h_active,
     input v_active,
 
-    input [31:0] bg_pixels,
-    input bg_pixels_load_0,
-    input bg_pixels_load_1,
+    input [31:0] bg_pixels_0,
+    input [31:0] bg_pixels_1,
 
     input [5:0] bg_size_0,
     input [5:0] bg_size_1,
@@ -61,32 +38,19 @@ module vga_background (
 	reg [5:0] pixel_size_count;
 	reg last_pixel;
 
-	wire shift_0 = last_pixel && active && shifter_index == 0;	
-	wire shift_1 = last_pixel && active && shifter_index == 1;
-
 	reg [4:0] shift_count;
 	wire shifter_index = shift_count[4];
 
 	vga_background_shifter vga_background_shifter_0 (
-		.clk (clk),
-		.reset (reset),
-
-		.shift (shift_0),
-
-		.in_pixels (bg_pixels),
-		.load_pixels (bg_pixels_load_0),
+		.pixels (bg_pixels_0),
+		.pixel_select (shift_count[3:0]),
 
 		.color_index (color_0)
 	);
 
 	vga_background_shifter vga_background_shifter_1 (
-		.clk (clk),
-		.reset (reset),
-
-		.shift (shift_1),
-
-		.in_pixels (bg_pixels),
-		.load_pixels (bg_pixels_load_1),
+		.pixels (bg_pixels_1),
+		.pixel_select (shift_count[3:0]),
 
 		.color_index (color_1)
 	);

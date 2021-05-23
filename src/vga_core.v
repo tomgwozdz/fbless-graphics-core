@@ -94,9 +94,8 @@ module vga_core (
     wire [9:0] h_counter;
     wire [9:0] v_counter;
 
-    reg [31:0] bg_pixels;
-    reg bg_pixels_load_0;
-    reg bg_pixels_load_1;
+    reg [31:0] bg_pixels_0;
+    reg [31:0] bg_pixels_1;
 
     reg [5:0] bg_size_0;
     reg [5:0] bg_size_1;
@@ -150,9 +149,8 @@ module vga_core (
         .h_active (vga_h_active),
         .v_active (vga_v_active),
 
-        .bg_pixels (bg_pixels),
-        .bg_pixels_load_0 (bg_pixels_load_0),
-        .bg_pixels_load_1 (bg_pixels_load_1),
+        .bg_pixels_0 (bg_pixels_0),
+        .bg_pixels_1 (bg_pixels_1),
 
         .bg_size_0 (bg_size_0),
         .bg_size_1 (bg_size_1),
@@ -180,9 +178,6 @@ module vga_core (
             wb_ack_o <= 0;
             wb_data_o <= 0;
 
-            bg_pixels_load_0 <= 0;
-            bg_pixels_load_1 <= 0;
-
             cond_h_count <= 0;
             cond_v_count <= 0;
             cond_h_active <= 0;
@@ -206,13 +201,11 @@ module vga_core (
                     wb_ack_o <= 1;
                 end
                 8'h0c: begin
-                    { bg_pixels } = wb_data_i;
-                    bg_pixels_load_0 <= 1;
+                    bg_pixels_0 = wb_data_i;
                     wb_ack_o <= 1;
                 end
                 8'h10: begin
-                    { bg_pixels } = wb_data_i;
-                    bg_pixels_load_1 <= 1;
+                    bg_pixels_1 = wb_data_i;
                     wb_ack_o <= 1;
                 end
                 8'h14: begin
@@ -234,9 +227,6 @@ module vga_core (
             endcase
         end else begin
             wb_ack_o <= 0;            
-
-            bg_pixels_load_0 <= 0;
-            bg_pixels_load_1 <= 0;
         end
     end
 

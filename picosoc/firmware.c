@@ -229,7 +229,7 @@ void main()
 
 	reg_leds = 127;
 
-	vga_bgs_reg = 0x185;
+	vga_bgs_reg = 0x186;
 
     // # reg 00:
     // # h_sync_start = 18 (00 0001 0010)
