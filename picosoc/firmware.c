@@ -36,6 +36,8 @@ extern uint32_t sram;
 #define vga_bg1_reg (*(volatile uint32_t*)0x04000010)
 #define vga_bgs_reg (*(volatile uint32_t*)0x04000014)
 #define vga_wait_reg (*(volatile uint32_t*)0x04000018)
+#define vga_bg_color_10_reg (*(volatile uint32_t*)0x0400001c)
+#define vga_bg_color_32_reg (*(volatile uint32_t*)0x04000020)
 
 
 // --------------------------------------------------------
@@ -194,31 +196,56 @@ uint32_t bg[] = {
 	0x1b1b1b1b,
 	0x6c6c6c6c,
 	0xb1b1b1b1,
+};
 
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4,
-	// 0x6c6c6c6c,
-	// 0xe4e4e4e4
+uint32_t color3210[] = {
+	0x000f000f,
+	0x00f00fff,
+	0x000e000e,
+	0x00e00eee,
+	0x000d000d,
+	0x00d00ddd,
+	0x000c000c,
+	0x00c00ccc,
+	0x000b000b,
+	0x00b00bbb,
+	0x000a000a,
+	0x00a00aaa,
+	0x00090009,
+	0x00900999,
+	0x00080008,
+	0x00800888,
+	0x00070007,
+	0x00700777,
+	0x00060006,
+	0x00600666,
+	0x00050005,
+	0x00500555,
+	0x00040004,
+	0x00400444,
+	0x00030003,
+	0x00300333,
+	0x00020002,
+	0x00200222,
+	0x00010001,
+	0x00100111,
+	0x00000000,
+	0x00000000,
+
+	0x00ff0f0f,
+	0x000ff777,
+	0x0021f3f1,
+	0x00ae576e,
+	0x0050b181,
+	0x00b94b88,
+	0x0008bc46,
+	0x00b07543,
+	0x00913d7e,
+	0x006f16b5,
+	0x00b3de11,
+	0x001feda7,
+	0x0092bc61,
+	0x00873f91,
 };
 
 void main()
@@ -259,23 +286,73 @@ void main()
 	vga_v_reg = 0x100c1c;
 	vga_m_reg = 0x4451fc;
 
+
+	/* A checkry pattern */
+
+	// vga_bg_color_10_reg = 0x00f00fff;
+	// vga_bg_color_32_reg = 0x000f000f;
+
+	// int line = 0;
+	// int count = 0;
+
+	// vga_wait_reg = 0x2000000;
+
+	// while (1) {
+	// 	uint32_t next_line_pixels = bg[line];
+
+	// 	line++;
+	// 	if (line == 24) {
+	// 		line = 0;
+	// 		vga_wait_reg = 0x2000000;
+	// 	}
+
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_bg0_reg = next_line_pixels;
+	// 	vga_bg1_reg = ~next_line_pixels;
+
+	// 	// 19 lines
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;	
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// 	vga_wait_reg = 0x2600001;
+	// }
+
+
+	/* A color test */
+
+	vga_bg_color_10_reg = 0x00f00fff;
+	vga_bg_color_32_reg = 0x0001000f;
+
 	int line = 0;
 	int count = 0;
 
 	vga_wait_reg = 0x2000000;
 
-	while (1) {
-		uint32_t next_line_pixels = bg[line];
+	vga_bg0_reg = 0x1B1B1B1B;
+	vga_bg1_reg = 0x1B1B1B1B;
 
-		line++;
-		if (line == 24) {
-			line = 0;
-			vga_wait_reg = 0x2000000;
-		}
+	while (1) {
+		uint32_t color32 = color3210[line++];
+		uint32_t color10 = color3210[line++];
 
 		vga_wait_reg = 0x2600001;
-		vga_bg0_reg = next_line_pixels;
-		vga_bg1_reg = ~next_line_pixels;
+		vga_bg_color_32_reg = color32;
+		vga_bg_color_10_reg = color10;
 
 		// 19 lines
 		vga_wait_reg = 0x2600001;
@@ -297,5 +374,11 @@ void main()
 		vga_wait_reg = 0x2600001;
 		vga_wait_reg = 0x2600001;
 		vga_wait_reg = 0x2600001;
+
+		if (line >= sizeof(color3210) / 4) {
+			line = 0;
+			vga_wait_reg = 0x2000000;
+		}		
 	}
+
 }

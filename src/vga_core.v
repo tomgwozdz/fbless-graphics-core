@@ -43,6 +43,14 @@
  *        c = expected h active
  *        d = expected v active
  *        e = [check v active, check h active, check vertical count, check horizonal count]
+ *
+ * W 1C  [00000000 bbbbbbbb bbbbaaaa aaaaaaaa]
+ *        a = bg_color_0
+ *        b = bg_color_1
+ *
+ * W 20  [00000000 bbbbbbbb bbbbaaaa aaaaaaaa]
+ *        a = bg_color_2
+ *        b = bg_color_3
  */
 
 module vga_core (
@@ -112,6 +120,11 @@ module vga_core (
     reg cond_check_h_count;
 
     reg cond_met;
+
+    reg [11:0] bg_color_0;
+    reg [11:0] bg_color_1;
+    reg [11:0] bg_color_2;
+    reg [11:0] bg_color_3;
 
 
     vga_timing vga_timing_0
@@ -186,6 +199,11 @@ module vga_core (
             cond_check_h_active <= 0;
             cond_check_v_count <= 0;
             cond_check_h_count <= 0;
+
+            bg_color_0 <= 0;
+            bg_color_1 <= 0;
+            bg_color_2 <= 0;
+            bg_color_3 <= 0;
         end else if(wb_stb_i && wb_cyc_i && wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Writes
             case (wb_addr_i[7:0])
                 8'h00: begin
@@ -224,6 +242,14 @@ module vga_core (
                         cond_check_h_count <= 0;
                     end
                 end
+                8'h1c: begin
+                    { bg_color_1, bg_color_0 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h20: begin
+                    { bg_color_3, bg_color_2 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
             endcase
         end else begin
             wb_ack_o <= 0;            
@@ -236,21 +262,13 @@ module vga_core (
 
         if (vga_h_active && vga_v_active) begin
             if (bg_color_index == 0) begin
-                vga_r <= 4'b0000;
-                vga_g <= 4'b0000;
-                vga_b <= 4'b0000;
+                { vga_r, vga_g, vga_b } = bg_color_0;
             end else if (bg_color_index == 1) begin
-                vga_r <= 4'b1111;
-                vga_g <= 4'b0000;
-                vga_b <= 4'b0000;                
+                { vga_r, vga_g, vga_b } = bg_color_1;
             end else if (bg_color_index == 2) begin
-                vga_r <= 4'b0000;
-                vga_g <= 4'b1111;
-                vga_b <= 4'b0000;                
+                { vga_r, vga_g, vga_b } = bg_color_2;
             end else begin
-                vga_r <= 4'b0000;
-                vga_g <= 4'b0000;
-                vga_b <= 4'b1111;
+                { vga_r, vga_g, vga_b } = bg_color_3;
             end
         end else begin
             vga_r = 0;

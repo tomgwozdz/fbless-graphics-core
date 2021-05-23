@@ -40,6 +40,10 @@ async def test_vga_core(dut):
     # reg 10:
     await vga.wbs.send_cycle([WBOp(0x04000010, dat=0x40000002)])
 
+    # background colors
+    await vga.wbs.send_cycle([WBOp(0x0400001c, dat=0x00a00000)])
+    await vga.wbs.send_cycle([WBOp(0x04000020, dat=0x000b000c)])
+
     # reg 14:
     # background 0 size = 6 (000110)
     # background 1 size = 6 (000110)
