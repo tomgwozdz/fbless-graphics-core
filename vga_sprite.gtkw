@@ -1,0 +1,43 @@
+[*]
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Sun May 23 20:33:51 2021
+[*]
+[dumpfile] "/home/zerotoasic/project/vga_sprite.vcd"
+[dumpfile_mtime] "Sun May 23 20:31:43 2021"
+[dumpfile_size] 5770
+[savefile] "/home/zerotoasic/project/vga_sprite.gtkw"
+[timestart] 0
+[size] 2488 1271
+[pos] -101 -101
+*-17.000000 102800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 233
+[signals_width] 305
+[sst_expanded] 1
+[sst_vpaned_height] 378
+@28
+vga_sprite.clk
+vga_sprite.reset
+@200
+-
+@25
+vga_sprite.start_time_0[9:0]
+vga_sprite.start_time_1[9:0]
+vga_sprite.start_time_2[9:0]
+@24
+vga_sprite.h_counter[9:0]
+@200
+-
+@28
+vga_sprite.sprite_color_index[1:0]
+@24
+vga_sprite.pixel_size_count[5:0]
+vga_sprite.pixel_count[3:0]
+@200
+-
+@28
+vga_sprite.active
+vga_sprite.start_showing_sprite
+vga_sprite.last_pixel_of_size
+vga_sprite.last_pixel_of_sprite
+[pattern_trace] 1
+[pattern_trace] 0
