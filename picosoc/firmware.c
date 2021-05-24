@@ -40,9 +40,17 @@ extern uint32_t sram;
 #define vga_bg_color_32_reg (*(volatile uint32_t*)0x04000020)
 #define vga_sprite_0_start_reg (*(volatile uint32_t*)0x04000024)
 #define vga_sprite_0_pixels_reg (*(volatile uint32_t*)0x04000028)
-#define vga_sprite_0_size_reg (*(volatile uint32_t*)0x0400002c)
-#define vga_sprite_0_color_1_reg (*(volatile uint32_t*)0x04000030)
-#define vga_sprite_0_color_32_reg (*(volatile uint32_t*)0x04000034)
+#define vga_sprite_0_size_color_1_reg (*(volatile uint32_t*)0x0400002c)
+#define vga_sprite_0_color_32_reg (*(volatile uint32_t*)0x04000030)
+#define vga_sprite_1_start_reg (*(volatile uint32_t*)0x04000034)
+#define vga_sprite_1_pixels_reg (*(volatile uint32_t*)0x04000038)
+#define vga_sprite_1_size_color_1_reg (*(volatile uint32_t*)0x0400003c)
+#define vga_sprite_1_color_32_reg (*(volatile uint32_t*)0x04000040)
+#define vga_sprite_2_start_reg (*(volatile uint32_t*)0x04000044)
+#define vga_sprite_2_pixels_reg (*(volatile uint32_t*)0x04000048)
+#define vga_sprite_2_size_color_1_reg (*(volatile uint32_t*)0x0400004c)
+#define vga_sprite_2_color_32_reg (*(volatile uint32_t*)0x04000050)
+
 
 
 // --------------------------------------------------------
@@ -414,48 +422,91 @@ void main()
 	vga_bg1_reg = 0x1B1B1B1B;
 
 	vga_bg_color_10_reg = 0x00f00fff;
-	vga_bg_color_32_reg = 0x0001000f;
-
-	vga_bg_color_10_reg = 0x00f00fff;
 	vga_bg_color_32_reg = 0x000f000f;
 
-	vga_sprite_0_color_1_reg = 0x00000000;
+	vga_sprite_0_size_color_1_reg = 0x00000000;
 	vga_sprite_0_color_32_reg = 0x00f0fff0;
-	vga_sprite_0_size_reg = 0;
+
+	vga_sprite_1_size_color_1_reg = 0x00000fff;
+	vga_sprite_1_color_32_reg = 0x000007f7;
+
+	vga_sprite_2_size_color_1_reg = 0x00000777;
+	vga_sprite_2_color_32_reg = 0x00077707;
 
 	int line = 0;
 
-	int startX = 80;
-	int startY = 50;
+	int startX0 = 80;
+	int startY0 = 50;
+	int startX1 = 100;
+	int startY1 = 20;
+	int startX2 = 150;
+	int startY2 = 70;
 
-	int incrementX = 1;
-	int incrementY = 1;
+	int incrementX0 = 1;
+	int incrementY0 = 1;
+	int incrementX1 = -1;
+	int incrementY1 = -1;
+	int incrementX2 = 1;
+	int incrementY2 = -1;
 
-	uint32_t next_sprite_pixels = 0;
+	uint32_t next_sprite_pixels_0 = 0;
+	uint32_t next_sprite_pixels_1 = 0;
+	uint32_t next_sprite_pixels_2 = 0;
 
 	while (1) {
-		int index = line - startY;
-		if (index >= 0 && index < sizeof(sprite) / 4) {
-			next_sprite_pixels = sprite[index];
+		int index0 = line - startY0;
+		int index1 = line - startY1;
+		// int index2 = line - startY2;
+
+		if (index0 >= 0 && index0 < sizeof(sprite) / 4) {
+			next_sprite_pixels_0 = sprite[index0];
 		}
+		if (index1 >= 0 && index1 < sizeof(sprite) / 4) {
+			next_sprite_pixels_1 = sprite[index1];
+		}
+		// if (index2 >= 0 && index2 < sizeof(sprite) / 4) {
+		// 	next_sprite_pixels_2 = sprite[index2];
+		// }
 
 		vga_wait_reg = 0x2600001;
-		vga_sprite_0_pixels_reg = next_sprite_pixels;
-		vga_sprite_0_start_reg = startX;
+		vga_sprite_0_pixels_reg = next_sprite_pixels_0;
+		vga_sprite_0_start_reg = startX0;
+		vga_sprite_1_pixels_reg = next_sprite_pixels_1;
+		vga_sprite_1_start_reg = startX1;
+		// vga_sprite_2_pixels_reg = next_sprite_pixels_2;
+		// vga_sprite_2_start_reg = startX2;
+		vga_bg0_reg = line;
 
 		line++;
-		if (line >= 100) {
+		if (line >= 95) {
 			line = 0;
 
-			startX += incrementX;
-			startY += incrementY;
+			startX0 += incrementX0;
+			startY0 += incrementY0;
+			startX1 += incrementX1;
+			startY1 += incrementY1;
+			startX2 += incrementX2;
+			startY2 += incrementY2;
 
-			if (startX > 250 || startX < 80) {
-				incrementX = -incrementX;
+			if (startX0 > 250 || startX0 < 80) {
+				incrementX0 = -incrementX0;
+			}
+			if (startY0 > 75 || startY0 < 10) {
+				incrementY0 = -incrementY0;
 			}
 
-			if (startY > 80 || startY < 10) {
-				incrementY = -incrementY;
+			if (startX1 > 250 || startX1 < 80) {
+				incrementX1 = -incrementX1;
+			}
+			if (startY1 > 75 || startY1 < 10) {
+				incrementY1 = -incrementY1;
+			}
+
+			if (startX2 > 250 || startX2 < 80) {
+				incrementX2 = -incrementX2;
+			}
+			if (startY2 > 75 || startY2 < 10) {
+				incrementY2 = -incrementY2;
 			}
 
 			vga_wait_reg = 0x2000000;

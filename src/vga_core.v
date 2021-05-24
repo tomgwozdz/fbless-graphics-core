@@ -110,6 +110,8 @@ module vga_core (
 
     wire [1:0] bg_color_index;
     wire [1:0] sprite_0_color_index;
+    wire [1:0] sprite_1_color_index;
+    wire [1:0] sprite_2_color_index;
 
     reg [9:0] cond_h_count;
     reg [9:0] cond_v_count;
@@ -131,12 +133,34 @@ module vga_core (
     reg [11:0] sprite_0_color_2;
     reg [11:0] sprite_0_color_3;
 
+    reg [11:0] sprite_1_color_1;
+    reg [11:0] sprite_1_color_2;
+    reg [11:0] sprite_1_color_3;
+
+    reg [11:0] sprite_2_color_1;
+    reg [11:0] sprite_2_color_2;
+    reg [11:0] sprite_2_color_3;
+
     reg [9:0] sprite_0_start_time_0;
     reg [9:0] sprite_0_start_time_1;
     reg [9:0] sprite_0_start_time_2;
 
+    reg [9:0] sprite_1_start_time_0;
+    reg [9:0] sprite_1_start_time_1;
+    reg [9:0] sprite_1_start_time_2;
+
+    reg [9:0] sprite_2_start_time_0;
+    reg [9:0] sprite_2_start_time_1;
+    reg [9:0] sprite_2_start_time_2;
+
     reg [31:0] sprite_0_pixels;
     reg [5:0] sprite_0_size;
+
+    reg [31:0] sprite_1_pixels;
+    reg [5:0] sprite_1_size;
+
+    reg [31:0] sprite_2_pixels;
+    reg [5:0] sprite_2_size;
 
 
     vga_timing vga_timing_0
@@ -200,6 +224,38 @@ module vga_core (
         .sprite_color_index (sprite_0_color_index)
     );
 
+    vga_sprite vga_sprite_1 (
+        .clk (clk),
+        .reset (reset),
+
+        .sprite_pixels (sprite_1_pixels),
+        .sprite_pixel_size (sprite_1_size),
+
+        .h_counter (h_counter),
+
+        .start_time_0 (sprite_1_start_time_0),
+        .start_time_1 (sprite_1_start_time_1),
+        .start_time_2 (sprite_1_start_time_2),
+
+        .sprite_color_index (sprite_1_color_index)
+    );
+
+    vga_sprite vga_sprite_2 (
+        .clk (clk),
+        .reset (reset),
+
+        .sprite_pixels (sprite_2_pixels),
+        .sprite_pixel_size (sprite_2_size),
+
+        .h_counter (h_counter),
+
+        .start_time_0 (sprite_2_start_time_0),
+        .start_time_1 (sprite_2_start_time_1),
+        .start_time_2 (sprite_2_start_time_2),
+
+        .sprite_color_index (sprite_2_color_index)
+    );
+
 
     always @(posedge clk) begin
         if (reset) begin
@@ -238,12 +294,34 @@ module vga_core (
             sprite_0_color_2 <= 0;
             sprite_0_color_3 <= 0;
 
+            sprite_1_color_1 <= 0;
+            sprite_1_color_2 <= 0;
+            sprite_1_color_3 <= 0;
+
+            sprite_2_color_1 <= 0;
+            sprite_2_color_2 <= 0;
+            sprite_2_color_3 <= 0;
+
             sprite_0_start_time_0 <= 0;
             sprite_0_start_time_1 <= 0;
             sprite_0_start_time_2 <= 0;
 
+            sprite_1_start_time_0 <= 0;
+            sprite_1_start_time_1 <= 0;
+            sprite_1_start_time_2 <= 0;
+
+            sprite_2_start_time_0 <= 0;
+            sprite_2_start_time_1 <= 0;
+            sprite_2_start_time_2 <= 0;
+
             sprite_0_pixels <= 0;
             sprite_0_size <= 0;
+
+            sprite_1_pixels <= 0;
+            sprite_1_size <= 0;
+
+            sprite_2_pixels <= 0;
+            sprite_2_size <= 0;        
         end else if(wb_stb_i && wb_cyc_i && wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Writes
             case (wb_addr_i[7:0])
                 8'h00: begin
@@ -299,15 +377,43 @@ module vga_core (
                     wb_ack_o <= 1;
                 end
                 8'h2c: begin
-                    { sprite_0_size } <= wb_data_i;
+                    { sprite_0_size, sprite_0_color_1 } = wb_data_i;
                     wb_ack_o <= 1;
                 end
                 8'h30: begin
-                    { sprite_0_color_1 } = wb_data_i;
+                    { sprite_0_color_3, sprite_0_color_2 } = wb_data_i;
                     wb_ack_o <= 1;
                 end
                 8'h34: begin
-                    { sprite_0_color_3, sprite_0_color_2 } = wb_data_i;
+                    { sprite_1_start_time_2, sprite_1_start_time_1, sprite_1_start_time_0 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h38: begin
+                    sprite_1_pixels <= wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h3c: begin
+                    { sprite_1_size, sprite_1_color_1 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h40: begin
+                    { sprite_1_color_3, sprite_1_color_2 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h44: begin
+                    { sprite_2_start_time_2, sprite_2_start_time_1, sprite_2_start_time_0 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h48: begin
+                    sprite_2_pixels <= wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h4c: begin
+                    { sprite_2_size, sprite_2_color_1 } = wb_data_i;
+                    wb_ack_o <= 1;
+                end
+                8'h50: begin
+                    { sprite_2_color_3, sprite_2_color_2 } = wb_data_i;
                     wb_ack_o <= 1;
                 end
             endcase
@@ -327,6 +433,18 @@ module vga_core (
                 { vga_r, vga_g, vga_b } = sprite_0_color_2;
             end else if (sprite_0_color_index == 3) begin
                 { vga_r, vga_g, vga_b } = sprite_0_color_3;
+            end else if (sprite_1_color_index == 1) begin
+                { vga_r, vga_g, vga_b } = sprite_1_color_1;
+            end else if (sprite_1_color_index == 2) begin
+                { vga_r, vga_g, vga_b } = sprite_1_color_2;
+            end else if (sprite_1_color_index == 3) begin
+                { vga_r, vga_g, vga_b } = sprite_1_color_3;
+            end else if (sprite_2_color_index == 1) begin
+                { vga_r, vga_g, vga_b } = sprite_2_color_1;
+            end else if (sprite_2_color_index == 2) begin
+                { vga_r, vga_g, vga_b } = sprite_2_color_2;
+            end else if (sprite_2_color_index == 3) begin
+                { vga_r, vga_g, vga_b } = sprite_2_color_3;
             end else if (bg_color_index == 0) begin
                 { vga_r, vga_g, vga_b } = bg_color_0;
             end else if (bg_color_index == 1) begin

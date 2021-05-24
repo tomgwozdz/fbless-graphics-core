@@ -7,9 +7,8 @@ Zero To ASIC course.
 
 
 TODO:
-- Sprites
-- Sprite palettes
 - Sound
 - Input
 - Collisions
 - Testing
+- Clean up registers
