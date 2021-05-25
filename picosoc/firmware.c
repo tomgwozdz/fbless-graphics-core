@@ -276,11 +276,107 @@ uint32_t sprite[] = {
 	0x7bbbbbb9,
 	0x6eeeeeed,
 	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
+	0x6eeeeeed,
+	0x7bbbbbb9,
 	0x06eeeed0,
 	0x05bbbb50,
 	0x00555500,
 	0x00000000
 };
+
+__attribute__((section(".data"))) void main_loop()
+{
+	int line = 0;
+
+	int startX0 = 80;
+	int startY0 = 50;
+	int startX1 = 100;
+	int startY1 = 20;
+	int startX2 = 150;
+	int startY2 = 70;
+
+	int incrementX0 = 1;
+	int incrementY0 = 1;
+	int incrementX1 = -2;
+	int incrementY1 = -1;
+	int incrementX2 = 1;
+	int incrementY2 = -2;
+
+	uint32_t next_sprite_pixels_0 = 0;
+	uint32_t next_sprite_pixels_1 = 0;
+	uint32_t next_sprite_pixels_2 = 0;
+
+	while (1) {
+		int index0 = line - startY0;
+		int index1 = line - startY1;
+		int index2 = line - startY2;
+
+		if (index0 >= 0 && index0 < sizeof(sprite) / 4) {
+			next_sprite_pixels_0 = sprite[index0];
+		}
+		if (index1 >= 0 && index1 < sizeof(sprite) / 4) {
+			next_sprite_pixels_1 = sprite[index1];
+		}
+		if (index2 >= 0 && index2 < sizeof(sprite) / 4) {
+			next_sprite_pixels_2 = sprite[index2];
+		}
+
+		vga_wait_reg = 0x2600001;
+		vga_sprite_0_pixels_reg = next_sprite_pixels_0;
+		vga_sprite_0_start_reg = startX0;
+		vga_sprite_1_pixels_reg = next_sprite_pixels_1;
+		vga_sprite_1_start_reg = startX1;
+		vga_sprite_2_pixels_reg = next_sprite_pixels_2;
+		vga_sprite_2_start_reg = startX2;
+		vga_bg0_reg = line;
+
+		line++;
+		if (line > 479) {
+			line = 0;
+
+			startX0 += incrementX0;
+			startY0 += incrementY0;
+			startX1 += incrementX1;
+			startY1 += incrementY1;
+			startX2 += incrementX2;
+			startY2 += incrementY2;
+
+			if (startX0 > 250 || startX0 < 80) {
+				incrementX0 = -incrementX0;
+			}
+			if (startY0 > 440 || startY0 < 10) {
+				incrementY0 = -incrementY0;
+			}
+
+			if (startX1 > 250 || startX1 < 80) {
+				incrementX1 = -incrementX1;
+			}
+			if (startY1 > 440 || startY1 < 10) {
+				incrementY1 = -incrementY1;
+			}
+
+			if (startX2 > 250 || startX2 < 80) {
+				incrementX2 = -incrementX2;
+			}
+			if (startY2 > 440 || startY2 < 10) {
+				incrementY2 = -incrementY2;
+			}
+
+			vga_wait_reg = 0x2000000;
+			vga_wait_reg = 0x2200000;
+		}		
+	}
+}
 
 void main()
 {
@@ -302,8 +398,8 @@ void main()
     // # reg 04:
     // # v_sync_start = 1 (00 0000 0001)
     // # v_sync_end = 3 (00 0000 0011)
-    // # v_active_start = 28 (00 0001 1100)
-    // # = 0x100c1c
+    // # v_active_start = 29 (00 0001 1101)
+    // # = 0x100c1d
     // await vga.wbs.send_cycle([WBOp(0x04000004, dat=0x100c1c)])
 
     // # reg 08:
@@ -317,7 +413,7 @@ void main()
 
 
 	vga_h_reg = 0x120903f;
-	vga_v_reg = 0x100c1c;
+	vga_v_reg = 0x100c1d;
 	vga_m_reg = 0x4451fc;
 
 
@@ -433,83 +529,5 @@ void main()
 	vga_sprite_2_size_color_1_reg = 0x00000777;
 	vga_sprite_2_color_32_reg = 0x00077707;
 
-	int line = 0;
-
-	int startX0 = 80;
-	int startY0 = 50;
-	int startX1 = 100;
-	int startY1 = 20;
-	int startX2 = 150;
-	int startY2 = 70;
-
-	int incrementX0 = 1;
-	int incrementY0 = 1;
-	int incrementX1 = -1;
-	int incrementY1 = -1;
-	int incrementX2 = 1;
-	int incrementY2 = -1;
-
-	uint32_t next_sprite_pixels_0 = 0;
-	uint32_t next_sprite_pixels_1 = 0;
-	uint32_t next_sprite_pixels_2 = 0;
-
-	while (1) {
-		int index0 = line - startY0;
-		int index1 = line - startY1;
-		// int index2 = line - startY2;
-
-		if (index0 >= 0 && index0 < sizeof(sprite) / 4) {
-			next_sprite_pixels_0 = sprite[index0];
-		}
-		if (index1 >= 0 && index1 < sizeof(sprite) / 4) {
-			next_sprite_pixels_1 = sprite[index1];
-		}
-		// if (index2 >= 0 && index2 < sizeof(sprite) / 4) {
-		// 	next_sprite_pixels_2 = sprite[index2];
-		// }
-
-		vga_wait_reg = 0x2600001;
-		vga_sprite_0_pixels_reg = next_sprite_pixels_0;
-		vga_sprite_0_start_reg = startX0;
-		vga_sprite_1_pixels_reg = next_sprite_pixels_1;
-		vga_sprite_1_start_reg = startX1;
-		// vga_sprite_2_pixels_reg = next_sprite_pixels_2;
-		// vga_sprite_2_start_reg = startX2;
-		vga_bg0_reg = line;
-
-		line++;
-		if (line >= 95) {
-			line = 0;
-
-			startX0 += incrementX0;
-			startY0 += incrementY0;
-			startX1 += incrementX1;
-			startY1 += incrementY1;
-			startX2 += incrementX2;
-			startY2 += incrementY2;
-
-			if (startX0 > 250 || startX0 < 80) {
-				incrementX0 = -incrementX0;
-			}
-			if (startY0 > 75 || startY0 < 10) {
-				incrementY0 = -incrementY0;
-			}
-
-			if (startX1 > 250 || startX1 < 80) {
-				incrementX1 = -incrementX1;
-			}
-			if (startY1 > 75 || startY1 < 10) {
-				incrementY1 = -incrementY1;
-			}
-
-			if (startX2 > 250 || startX2 < 80) {
-				incrementX2 = -incrementX2;
-			}
-			if (startY2 > 75 || startY2 < 10) {
-				incrementY2 = -incrementY2;
-			}
-
-			vga_wait_reg = 0x2000000;
-		}		
-	}
+	main_loop();
 }
