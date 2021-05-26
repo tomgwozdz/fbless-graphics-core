@@ -30,7 +30,7 @@ class VgaTest(object):
 
 
 @cocotb.test()
-async def test_vga_core(dut):
+async def test_vga_core_timing(dut):
     vga = VgaTest(dut)
     await vga.reset()
 
@@ -85,6 +85,75 @@ async def test_vga_core(dut):
     # = 0x2600001
     await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2600001)])
     await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2600001)])
+
+    await ClockCycles(dut.clk, 800 * 50)
+
+
+@cocotb.test()
+async def test_vga_core_collision(dut):
+    vga = VgaTest(dut)
+    await vga.reset()
+
+    # background pixels 0, 1
+    await vga.wbs.send_cycle([WBOp(0x0400000c, dat=0x55555555)])
+    await vga.wbs.send_cycle([WBOp(0x04000010, dat=0x55555555)])
+
+    # background colors
+    await vga.wbs.send_cycle([WBOp(0x0400001c, dat=0x00f00000)])
+    await vga.wbs.send_cycle([WBOp(0x04000020, dat=0x000f000f)])
+
+    # sprite 0 pixels, colors, start position
+    await vga.wbs.send_cycle([WBOp(0x04000028, dat=0xffffffff)])
+    await vga.wbs.send_cycle([WBOp(0x04000024, dat=46)])
+    await vga.wbs.send_cycle([WBOp(0x0400002c, dat=0x00000fff)])
+    await vga.wbs.send_cycle([WBOp(0x04000030, dat=0x00ffffff)])
+
+    # sprite 1 pixels
+    await vga.wbs.send_cycle([WBOp(0x04000038, dat=0x55555555)])
+    await vga.wbs.send_cycle([WBOp(0x04000034, dat=56)])
+    await vga.wbs.send_cycle([WBOp(0x0400003c, dat=0x00000fff)])
+    await vga.wbs.send_cycle([WBOp(0x04000040, dat=0x00ffffff)])
+
+    # sprite 2 pixels
+    await vga.wbs.send_cycle([WBOp(0x04000048, dat=0x55555555)])
+    await vga.wbs.send_cycle([WBOp(0x0400004c, dat=0x00000fff)])
+    await vga.wbs.send_cycle([WBOp(0x04000050, dat=0x00ffffff)])
+
+    # reg 00:
+    # h_sync_start = 1 (00 0000 0001)
+    # h_sync_end = 2 (00 0000 0010)
+    # h_active_start = 40 (00 0010 1000)
+    # = 0x100828
+    await vga.wbs.send_cycle([WBOp(0x04000000, dat=0x100828)])
+
+    # reg 04:
+    # v_sync_start = 1 (00 0000 0001)
+    # v_sync_end = 2 (00 0000 0010)
+    # v_active_start = 3 (00 0000 0011)
+    # = 0x100803
+    await vga.wbs.send_cycle([WBOp(0x04000004, dat=0x100803)])
+
+    # reg 08:
+    # enabled = 1 (1)
+    # h_pol = 0 (0)
+    # v_pol = 0 (0)
+    # h_active_end = 71 (00 0100 0111)
+    # v_active_end = 10 (00 0000 1010)
+    # = 0x411C0A
+    await vga.wbs.send_cycle([WBOp(0x04000008, dat=0x411C0A)])
+
+    # Read collision register (to reset it)
+    await vga.wbs.send_cycle([WBOp(0x04000000)]);
+
+    # Wait for end of retrace
+    await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2200000)])
+    await vga.wbs.send_cycle([WBOp(0x04000018, dat=0x2000000)])
+
+    # Read collision register
+    collision_result = await vga.wbs.send_cycle([WBOp(0x04000000)])
+    values = [wb.datrd for wb in collision_result]
+
+    dut.log.info(f"Returned Results: {values}")
 
 
     await ClockCycles(dut.clk, 800 * 50)

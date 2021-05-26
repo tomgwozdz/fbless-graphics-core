@@ -25,10 +25,9 @@
 extern uint32_t sram;
 
 #define reg_spictrl (*(volatile uint32_t*)0x02000000)
-#define reg_uart_clkdiv (*(volatile uint32_t*)0x02000004)
-#define reg_uart_data (*(volatile uint32_t*)0x02000008)
 #define reg_leds (*(volatile uint32_t*)0x03000000)
 
+#define vga_collision_reg (*(volatile uint32_t*)0x04000000)
 #define vga_h_reg (*(volatile uint32_t*)0x04000000)
 #define vga_v_reg (*(volatile uint32_t*)0x04000004)
 #define vga_m_reg (*(volatile uint32_t*)0x04000008)
@@ -89,100 +88,6 @@ void set_flash_qspi_flag()
 
 // --------------------------------------------------------
 
-void putchar(char c)
-{
-	if (c == '\n')
-		putchar('\r');
-	reg_uart_data = c;
-}
-
-void print(const char *p)
-{
-	while (*p)
-		putchar(*(p++));
-}
-
-void print_hex(uint32_t v, int digits)
-{
-	for (int i = 7; i >= 0; i--) {
-		char c = "0123456789abcdef"[(v >> (4*i)) & 15];
-		if (c == '0' && i >= digits) continue;
-		putchar(c);
-		digits = i;
-	}
-}
-
-void print_dec(uint32_t v)
-{
-	if (v >= 1000) {
-		print(">=1000");
-		return;
-	}
-
-	if      (v >= 900) { putchar('9'); v -= 900; }
-	else if (v >= 800) { putchar('8'); v -= 800; }
-	else if (v >= 700) { putchar('7'); v -= 700; }
-	else if (v >= 600) { putchar('6'); v -= 600; }
-	else if (v >= 500) { putchar('5'); v -= 500; }
-	else if (v >= 400) { putchar('4'); v -= 400; }
-	else if (v >= 300) { putchar('3'); v -= 300; }
-	else if (v >= 200) { putchar('2'); v -= 200; }
-	else if (v >= 100) { putchar('1'); v -= 100; }
-
-	if      (v >= 90) { putchar('9'); v -= 90; }
-	else if (v >= 80) { putchar('8'); v -= 80; }
-	else if (v >= 70) { putchar('7'); v -= 70; }
-	else if (v >= 60) { putchar('6'); v -= 60; }
-	else if (v >= 50) { putchar('5'); v -= 50; }
-	else if (v >= 40) { putchar('4'); v -= 40; }
-	else if (v >= 30) { putchar('3'); v -= 30; }
-	else if (v >= 20) { putchar('2'); v -= 20; }
-	else if (v >= 10) { putchar('1'); v -= 10; }
-
-	if      (v >= 9) { putchar('9'); v -= 9; }
-	else if (v >= 8) { putchar('8'); v -= 8; }
-	else if (v >= 7) { putchar('7'); v -= 7; }
-	else if (v >= 6) { putchar('6'); v -= 6; }
-	else if (v >= 5) { putchar('5'); v -= 5; }
-	else if (v >= 4) { putchar('4'); v -= 4; }
-	else if (v >= 3) { putchar('3'); v -= 3; }
-	else if (v >= 2) { putchar('2'); v -= 2; }
-	else if (v >= 1) { putchar('1'); v -= 1; }
-	else putchar('0');
-}
-
-char getchar_prompt(char *prompt)
-{
-	int32_t c = -1;
-
-	uint32_t cycles_begin, cycles_now, cycles;
-	__asm__ volatile ("rdcycle %0" : "=r"(cycles_begin));
-
-	reg_leds = ~0;
-
-	if (prompt)
-		print(prompt);
-
-	while (c == -1) {
-		__asm__ volatile ("rdcycle %0" : "=r"(cycles_now));
-		cycles = cycles_now - cycles_begin;
-		if (cycles > 12000000) {
-			if (prompt)
-				print(prompt);
-			cycles_begin = cycles_now;
-			reg_leds = ~reg_leds;
-		}
-		c = reg_uart_data;
-	}
-
-	reg_leds = 0;
-	return c;
-}
-
-char getchar()
-{
-	return getchar_prompt(0);
-}
 
 uint32_t bg[] = {	
 	0xcccccccc,
@@ -298,37 +203,53 @@ __attribute__((section(".data"))) void main_loop()
 {
 	int line = 0;
 
-	int startX0 = 80;
+	int startX0 = 200;
 	int startY0 = 50;
-	int startX1 = 100;
+	int startX1 = 200;
 	int startY1 = 20;
-	int startX2 = 150;
-	int startY2 = 70;
+	int startX2 = 200;
+	int startY2 = 100;
 
 	int incrementX0 = 1;
 	int incrementY0 = 1;
-	int incrementX1 = -2;
-	int incrementY1 = -1;
+	int incrementX1 = 1;
+	int incrementY1 = -2;
 	int incrementX2 = 1;
-	int incrementY2 = -2;
+	int incrementY2 = -3;
 
 	uint32_t next_sprite_pixels_0 = 0;
 	uint32_t next_sprite_pixels_1 = 0;
 	uint32_t next_sprite_pixels_2 = 0;
+
+	bool collision_0 = 0;
+	bool collision_1 = 1;
+	bool collision_2 = 2;
 
 	while (1) {
 		int index0 = line - startY0;
 		int index1 = line - startY1;
 		int index2 = line - startY2;
 
+		next_sprite_pixels_0 = 0;
+		next_sprite_pixels_1 = 0;
+		next_sprite_pixels_2 = 0;
 		if (index0 >= 0 && index0 < sizeof(sprite) / 4) {
 			next_sprite_pixels_0 = sprite[index0];
+			if (collision_0) {
+				next_sprite_pixels_0 = ~next_sprite_pixels_0;
+			}
 		}
 		if (index1 >= 0 && index1 < sizeof(sprite) / 4) {
 			next_sprite_pixels_1 = sprite[index1];
+			if (collision_1) {
+				next_sprite_pixels_1 = ~next_sprite_pixels_1;
+			}
 		}
 		if (index2 >= 0 && index2 < sizeof(sprite) / 4) {
 			next_sprite_pixels_2 = sprite[index2];
+			if (collision_2) {
+				next_sprite_pixels_2 = ~next_sprite_pixels_2;
+			}
 		}
 
 		vga_wait_reg = 0x2600001;
@@ -354,34 +275,47 @@ __attribute__((section(".data"))) void main_loop()
 			if (startX0 > 250 || startX0 < 80) {
 				incrementX0 = -incrementX0;
 			}
-			if (startY0 > 440 || startY0 < 10) {
+			if (startY0 > 400 || startY0 < 10) {
 				incrementY0 = -incrementY0;
 			}
 
 			if (startX1 > 250 || startX1 < 80) {
 				incrementX1 = -incrementX1;
 			}
-			if (startY1 > 440 || startY1 < 10) {
+			if (startY1 > 400 || startY1 < 10) {
 				incrementY1 = -incrementY1;
 			}
 
 			if (startX2 > 250 || startX2 < 80) {
 				incrementX2 = -incrementX2;
 			}
-			if (startY2 > 440 || startY2 < 10) {
+			if (startY2 > 400 || startY2 < 10) {
 				incrementY2 = -incrementY2;
 			}
 
 			vga_wait_reg = 0x2000000;
-			vga_wait_reg = 0x2200000;
-		}		
+
+			collision_0 = 0;
+			collision_1 = 0;
+			collision_2 = 0;
+
+			uint32_t collisions = vga_collision_reg;
+			// vga_bg1_reg = collisions;
+			if (collisions & 0x800) {
+				collision_0 = collision_1 = 1;
+			}
+			if (collisions & 0x400) {
+				collision_0 = collision_2 = 1;
+			}
+			if (collisions & 0x200) {
+				collision_1 = collision_2 = 1;
+			}
+		}				
 	}
 }
 
 void main()
 {
-	reg_uart_clkdiv = 104;
-
 	set_flash_qspi_flag();
 
 	reg_leds = 127;

@@ -48,8 +48,8 @@ module testbench;
 
 	wire [6:0] leds = {!ledg_n, !ledr_n, led5, led4, led3, led2, led1};
 
-	wire ser_rx;
-	wire ser_tx;
+	// wire ser_rx;
+	// wire ser_tx;
 
 	wire flash_csb;
 	wire flash_clk;
@@ -76,8 +76,8 @@ module testbench;
 		.led5     (led5     ),
 		.ledr_n   (ledr_n   ),
 		.ledg_n   (ledg_n   ),
-		.ser_rx   (ser_rx   ),
-		.ser_tx   (ser_tx   ),
+		// .ser_rx   (ser_rx   ),
+		// .ser_tx   (ser_tx   ),
 		.flash_csb(flash_csb),
 		.flash_clk(flash_clk),
 		.flash_io0(flash_io0),
@@ -95,28 +95,28 @@ module testbench;
 		.io3(flash_io3)
 	);
 
-	reg [7:0] buffer;
+	// reg [7:0] buffer;
 
-	always begin
-		@(negedge ser_tx);
+	// always begin
+	// 	@(negedge ser_tx);
 
-		repeat (ser_half_period) @(posedge clk);
-		-> ser_sample; // start bit
+	// 	repeat (ser_half_period) @(posedge clk);
+	// 	-> ser_sample; // start bit
 
-		repeat (8) begin
-			repeat (ser_half_period) @(posedge clk);
-			repeat (ser_half_period) @(posedge clk);
-			buffer = {ser_tx, buffer[7:1]};
-			-> ser_sample; // data bit
-		end
+	// 	repeat (8) begin
+	// 		repeat (ser_half_period) @(posedge clk);
+	// 		repeat (ser_half_period) @(posedge clk);
+	// 		buffer = {ser_tx, buffer[7:1]};
+	// 		-> ser_sample; // data bit
+	// 	end
 
-		repeat (ser_half_period) @(posedge clk);
-		repeat (ser_half_period) @(posedge clk);
-		-> ser_sample; // stop bit
+	// 	repeat (ser_half_period) @(posedge clk);
+	// 	repeat (ser_half_period) @(posedge clk);
+	// 	-> ser_sample; // stop bit
 
-		if (buffer < 32 || buffer >= 127)
-			$display("Serial data: %d", buffer);
-		else
-			$display("Serial data: '%c'", buffer);
-	end
+	// 	if (buffer < 32 || buffer >= 127)
+	// 		$display("Serial data: %d", buffer);
+	// 	else
+	// 		$display("Serial data: '%c'", buffer);
+	// end
 endmodule

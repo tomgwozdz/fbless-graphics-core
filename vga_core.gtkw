@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Sat May 22 21:56:51 2021
+[*] Tue May 25 23:26:04 2021
 [*]
-[dumpfile] "/home/zerotoasic/project/vga_core.vcd"
-[dumpfile_mtime] "Sat May 22 21:53:04 2021"
-[dumpfile_size] 9544085
-[savefile] "/home/zerotoasic/project/vga_core.gtkw"
-[timestart] 0
+[dumpfile] "/home/zerotoasic/fbless-graphics-core/vga_core.vcd"
+[dumpfile_mtime] "Tue May 25 23:23:29 2021"
+[dumpfile_size] 9823627
+[savefile] "/home/zerotoasic/fbless-graphics-core/vga_core.gtkw"
+[timestart] 477742000
 [size] 2488 1271
 [pos] -1 -1
-*-24.214935 73600000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.214935 480517000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] vga_core.
 [treeopen] vga_core.vga_background_0.
 [sst_width] 233
@@ -50,7 +50,7 @@ vga_core.v_active_start[9:0]
 vga_core.v_active_end[9:0]
 @28
 vga_core.v_pol
-@201
+@200
 -
 @24
 vga_core.h_counter[9:0]
@@ -71,9 +71,6 @@ vga_core.vga_h_active
 vga_core.vga_v_active
 @200
 -
-@22
-vga_core.vga_background_0.vga_background_shifter_0.pixels[31:0]
-vga_core.vga_background_0.vga_background_shifter_1.pixels[31:0]
 @24
 vga_core.vga_background_0.pixel_size_count[5:0]
 @200
@@ -89,7 +86,14 @@ vga_core.cond_h_active
 vga_core.cond_h_count[9:0]
 vga_core.cond_v_count[9:0]
 @28
-vga_core.cond_checking
 vga_core.cond_met
+@200
+-
+@28
+vga_core.collision_bits[11:0]
+vga_core.bg_color_index[1:0]
+vga_core.sprite_0_color_index[1:0]
+vga_core.sprite_1_color_index[1:0]
+vga_core.sprite_2_color_index[1:0]
 [pattern_trace] 1
 [pattern_trace] 0

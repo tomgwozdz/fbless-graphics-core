@@ -48,8 +48,8 @@ module picosoc (
 	input  irq_6,
 	input  irq_7,
 
-	output ser_tx,
-	input  ser_rx,
+	// output ser_tx,
+	// input  ser_rx,
 
 	output flash_csb,
 	output flash_clk,
@@ -115,19 +115,19 @@ module picosoc (
 	wire spimemio_cfgreg_sel = mem_valid && (mem_addr == 32'h 0200_0000);
 	wire [31:0] spimemio_cfgreg_do;
 
-	wire        simpleuart_reg_div_sel = mem_valid && (mem_addr == 32'h 0200_0004);
-	wire [31:0] simpleuart_reg_div_do;
+	// wire        simpleuart_reg_div_sel = mem_valid && (mem_addr == 32'h 0200_0004);
+	// wire [31:0] simpleuart_reg_div_do;
 
-	wire        simpleuart_reg_dat_sel = mem_valid && (mem_addr == 32'h 0200_0008);
-	wire [31:0] simpleuart_reg_dat_do;
-	wire        simpleuart_reg_dat_wait;
+	// wire        simpleuart_reg_dat_sel = mem_valid && (mem_addr == 32'h 0200_0008);
+	// wire [31:0] simpleuart_reg_dat_do;
+	// wire        simpleuart_reg_dat_wait;
 
-	assign mem_ready = (iomem_valid && iomem_ready) || spimem_ready || ram_ready || spimemio_cfgreg_sel ||
-			simpleuart_reg_div_sel || (simpleuart_reg_dat_sel && !simpleuart_reg_dat_wait);
+	assign mem_ready = (iomem_valid && iomem_ready) || spimem_ready || ram_ready || spimemio_cfgreg_sel /*||
+			simpleuart_reg_div_sel  || (simpleuart_reg_dat_sel && !simpleuart_reg_dat_wait )*/;
 
 	assign mem_rdata = (iomem_valid && iomem_ready) ? iomem_rdata : spimem_ready ? spimem_rdata : ram_ready ? ram_rdata :
-			spimemio_cfgreg_sel ? spimemio_cfgreg_do : simpleuart_reg_div_sel ? simpleuart_reg_div_do :
-			simpleuart_reg_dat_sel ? simpleuart_reg_dat_do : 32'h 0000_0000;
+			spimemio_cfgreg_sel ? spimemio_cfgreg_do : /* simpleuart_reg_div_sel ? simpleuart_reg_div_do :
+			simpleuart_reg_dat_sel ? simpleuart_reg_dat_do : */ 32'h 0000_0000;
 
 	picorv32 #(
 		.STACKADDR(STACKADDR),
@@ -184,23 +184,23 @@ module picosoc (
 		.cfgreg_do(spimemio_cfgreg_do)
 	);
 
-	simpleuart simpleuart (
-		.clk         (clk         ),
-		.resetn      (resetn      ),
+	// simpleuart simpleuart (
+	// 	.clk         (clk         ),
+	// 	.resetn      (resetn      ),
 
-		.ser_tx      (ser_tx      ),
-		.ser_rx      (ser_rx      ),
+	// 	.ser_tx      (ser_tx      ),
+	// 	.ser_rx      (ser_rx      ),
 
-		.reg_div_we  (simpleuart_reg_div_sel ? mem_wstrb : 4'b 0000),
-		.reg_div_di  (mem_wdata),
-		.reg_div_do  (simpleuart_reg_div_do),
+	// 	.reg_div_we  (simpleuart_reg_div_sel ? mem_wstrb : 4'b 0000),
+	// 	.reg_div_di  (mem_wdata),
+	// 	.reg_div_do  (simpleuart_reg_div_do),
 
-		.reg_dat_we  (simpleuart_reg_dat_sel ? mem_wstrb[0] : 1'b 0),
-		.reg_dat_re  (simpleuart_reg_dat_sel && !mem_wstrb),
-		.reg_dat_di  (mem_wdata),
-		.reg_dat_do  (simpleuart_reg_dat_do),
-		.reg_dat_wait(simpleuart_reg_dat_wait)
-	);
+	// 	.reg_dat_we  (simpleuart_reg_dat_sel ? mem_wstrb[0] : 1'b 0),
+	// 	.reg_dat_re  (simpleuart_reg_dat_sel && !mem_wstrb),
+	// 	.reg_dat_di  (mem_wdata),
+	// 	.reg_dat_do  (simpleuart_reg_dat_do),
+	// 	.reg_dat_wait(simpleuart_reg_dat_wait)
+	// );
 
 	always @(posedge clk)
 		ram_ready <= mem_valid && !mem_ready && mem_addr < 4*MEM_WORDS;

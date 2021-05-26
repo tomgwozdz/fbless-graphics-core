@@ -28,8 +28,8 @@ module icebreaker (
 	input clk,
 	input reset_button,
 
-	output ser_tx,
-	input ser_rx,
+	// output ser_tx,
+	// input ser_rx,
 
 	output led1,
 	output led2,
@@ -261,8 +261,8 @@ module icebreaker (
 		.clk          (clk         ),
 		.resetn       (resetn      ),
 
-		.ser_tx       (ser_tx      ),
-		.ser_rx       (ser_rx      ),
+		// .ser_tx       (ser_tx      ),
+		// .ser_rx       (ser_rx      ),
 
 		.flash_csb    (flash_csb   ),
 		.flash_clk    (flash_clk   ),

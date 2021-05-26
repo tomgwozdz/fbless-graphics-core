@@ -3,8 +3,8 @@ set_io clk          35
 set_io reset_button 10
 
 # RS232
-set_io ser_rx      6
-set_io ser_tx      9
+#set_io ser_rx      6
+#set_io ser_tx      9
 
 # SPI Flash
 set_io flash_clk  15

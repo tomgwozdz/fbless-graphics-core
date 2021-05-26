@@ -162,6 +162,9 @@ module vga_core (
     reg [31:0] sprite_2_pixels;
     reg [5:0] sprite_2_size;
 
+    reg clear_collision;
+    reg [11:0] collision_bits;
+
 
     vga_timing vga_timing_0
     (
@@ -285,6 +288,9 @@ module vga_core (
             cond_check_v_count <= 0;
             cond_check_h_count <= 0;
 
+            bg_size_0 <= 0;
+            bg_size_1 <= 0;
+
             bg_color_0 <= 0;
             bg_color_1 <= 0;
             bg_color_2 <= 0;
@@ -321,7 +327,9 @@ module vga_core (
             sprite_1_size <= 0;
 
             sprite_2_pixels <= 0;
-            sprite_2_size <= 0;        
+            sprite_2_size <= 0;
+
+            clear_collision <= 0;
         end else if(wb_stb_i && wb_cyc_i && wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Writes
             case (wb_addr_i[7:0])
                 8'h00: begin
@@ -354,10 +362,6 @@ module vga_core (
 
                     if (cond_met) begin
                         wb_ack_o <= 1;
-                        cond_check_v_active <= 0;
-                        cond_check_h_active <= 0;
-                        cond_check_v_count <= 0;
-                        cond_check_h_count <= 0;
                     end
                 end
                 8'h1c: begin
@@ -417,8 +421,24 @@ module vga_core (
                     wb_ack_o <= 1;
                 end
             endcase
+        end else if(wb_stb_i && wb_cyc_i && !wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Reads
+            case (wb_addr_i[7:0])
+                8'h00: begin
+                    wb_data_o <= collision_bits;
+                    clear_collision <= 1;
+                end
+            endcase
+
+            wb_ack_o <= 1;
         end else begin
-            wb_ack_o <= 0;            
+            wb_ack_o <= 0;
+
+            cond_check_v_active <= 0;
+            cond_check_h_active <= 0;
+            cond_check_v_count <= 0;
+            cond_check_h_count <= 0;
+
+            clear_collision <= 0;
         end
     end
 
@@ -474,5 +494,34 @@ module vga_core (
             end
         end        
     end
+
+    always @(posedge clk) begin
+        if (reset) begin
+            collision_bits <= 0;            
+        end else if (clear_collision) begin
+            collision_bits <= 0;
+        end else if (vga_h_active && vga_v_active) begin
+            collision_bits <= { collision_s0_s1, collision_s0_s2, collision_s1_s2,
+                                collision_b1_s0, collision_b2_s0, collision_b3_s0,
+                                collision_b1_s1, collision_b2_s1, collision_b3_s1,
+                                collision_b1_s2, collision_b2_s2, collision_b3_s2 } | collision_bits;
+        end
+    end
+
+    wire collision_s0_s1 = (sprite_0_color_index != 0 && sprite_1_color_index != 0);
+    wire collision_s0_s2 = (sprite_0_color_index != 0 && sprite_2_color_index != 0);
+    wire collision_s1_s2 = (sprite_1_color_index != 0 && sprite_2_color_index != 0);
+
+    wire collision_b1_s0 = (bg_color_index == 1 && sprite_0_color_index != 0);
+    wire collision_b2_s0 = (bg_color_index == 2 && sprite_0_color_index != 0);
+    wire collision_b3_s0 = (bg_color_index == 3 && sprite_0_color_index != 0);
+
+    wire collision_b1_s1 = (bg_color_index == 1 && sprite_1_color_index != 0);
+    wire collision_b2_s1 = (bg_color_index == 2 && sprite_1_color_index != 0);
+    wire collision_b3_s1 = (bg_color_index == 3 && sprite_1_color_index != 0);
+
+    wire collision_b1_s2 = (bg_color_index == 1 && sprite_2_color_index != 0);
+    wire collision_b2_s2 = (bg_color_index == 2 && sprite_2_color_index != 0);
+    wire collision_b3_s2 = (bg_color_index == 3 && sprite_2_color_index != 0);
 
 endmodule
