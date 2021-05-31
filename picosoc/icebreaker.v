@@ -243,7 +243,9 @@ module icebreaker (
     	.vga_b (vga_b),
 
 	    .vga_hs (vga_hs),
-    	.vga_vs (vga_vs)    
+    	.vga_vs (vga_vs),
+
+    	.buttons ({0, button1, button2, button3})
 	);
 
     assign {     P1A1,     P1A2,     P1A3,     P1A4,     P1A7,     P1A8,     P1A9,    P1A10 } =

@@ -8,7 +8,5 @@ Zero To ASIC course.
 
 TODO:
 - Sound
-- Input
-- Collisions
 - Testing
 - Clean up registers

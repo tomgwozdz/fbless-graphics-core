@@ -28,6 +28,7 @@ extern uint32_t sram;
 #define reg_leds (*(volatile uint32_t*)0x03000000)
 
 #define vga_collision_reg (*(volatile uint32_t*)0x04000000)
+#define vga_buttons_reg (*(volatile uint32_t*)0x04000004)
 #define vga_h_reg (*(volatile uint32_t*)0x04000000)
 #define vga_v_reg (*(volatile uint32_t*)0x04000004)
 #define vga_m_reg (*(volatile uint32_t*)0x04000008)
@@ -269,8 +270,23 @@ __attribute__((section(".data"))) void main_loop()
 			startY0 += incrementY0;
 			startX1 += incrementX1;
 			startY1 += incrementY1;
-			startX2 += incrementX2;
-			startY2 += incrementY2;
+			// startX2 += incrementX2;
+			// startY2 += incrementY2;
+
+			uint32_t buttons = vga_buttons_reg;
+			if ((buttons & 0x05) == 0x05) {
+				startY2 -= 3;
+			} else {
+				if ((buttons & 0x04) == 0x04) {
+					startX2 += 1;
+				}
+				if ((buttons & 0x01) == 0x01) {
+					startX2 -= 1;
+				}
+			}
+			if ((buttons & 0x02) == 0x02) {
+				startY2 += 3;
+			}
 
 			if (startX0 > 250 || startX0 < 80) {
 				incrementX0 = -incrementX0;
@@ -286,12 +302,12 @@ __attribute__((section(".data"))) void main_loop()
 				incrementY1 = -incrementY1;
 			}
 
-			if (startX2 > 250 || startX2 < 80) {
-				incrementX2 = -incrementX2;
-			}
-			if (startY2 > 400 || startY2 < 10) {
-				incrementY2 = -incrementY2;
-			}
+			// if (startX2 > 250 || startX2 < 80) {
+			// 	incrementX2 = -incrementX2;
+			// }
+			// if (startY2 > 400 || startY2 < 10) {
+			// 	incrementY2 = -incrementY2;
+			// }
 
 			vga_wait_reg = 0x2000000;
 

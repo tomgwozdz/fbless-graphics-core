@@ -75,7 +75,9 @@ module vga_core (
     output reg [3:0] vga_b,
 
     output reg vga_hs,
-    output reg vga_vs    
+    output reg vga_vs,
+
+    input [11:0] buttons
 );
 
     reg [9:0] h_sync_start;
@@ -164,6 +166,9 @@ module vga_core (
 
     reg clear_collision;
     reg [11:0] collision_bits;
+
+    reg [11:0] buttons_buffer;
+    reg [11:0] buttons_reg;
 
 
     vga_timing vga_timing_0
@@ -427,6 +432,7 @@ module vga_core (
                     wb_data_o <= collision_bits;
                     clear_collision <= 1;
                 end
+                8'h04:  wb_data_o <= buttons_reg;
             endcase
 
             wb_ack_o <= 1;
@@ -505,6 +511,16 @@ module vga_core (
                                 collision_b1_s0, collision_b2_s0, collision_b3_s0,
                                 collision_b1_s1, collision_b2_s1, collision_b3_s1,
                                 collision_b1_s2, collision_b2_s2, collision_b3_s2 } | collision_bits;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (reset) begin
+            buttons_buffer <= 0;
+            buttons_reg <= 0;
+        end else begin
+            buttons_reg <= buttons_buffer;
+            buttons_buffer <= buttons;
         end
     end
 
