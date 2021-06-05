@@ -1,12 +1,3 @@
-# FPGA variables
-PROJECT = fpga/vga
-SOURCES= src/vga_timing.v src/fpga_top.v
-ICEBREAKER_DEVICE = up5k
-ICEBREAKER_PIN_DEF = fpga/icebreaker.pcf
-ICEBREAKER_PACKAGE = sg48
-SEED = 1
-
-
 all: test_vga_timing test_vga_background test_vga_sprite test_vga_core
 
 test_vga_timing:
@@ -36,23 +27,6 @@ test_vga_core:
 show_%: %.vcd %.gtkw
 	gtkwave $^
 
-
-# FPGA recipes
-
-show_synth_%: src/%.v
-	yosys -p "read_verilog $<; proc; opt; show -colors 2 -width -signed"
-
-%.json: $(SOURCES)
-	yosys -l fpga/yosys.log -p 'synth_ice40 -top fpga_top -json $(PROJECT).json' $(SOURCES)
-
-%.asc: %.json $(ICEBREAKER_PIN_DEF) 
-	nextpnr-ice40 -l fpga/nextpnr.log --seed $(SEED) --freq 12 --package $(ICEBREAKER_PACKAGE) --$(ICEBREAKER_DEVICE) --asc $@ --pcf $(ICEBREAKER_PIN_DEF) --json $<
-
-%.bin: %.asc
-	icepack $< $@
-
-prog: $(PROJECT).bin
-	sudo `which iceprog` $<
 
 
 clean:
