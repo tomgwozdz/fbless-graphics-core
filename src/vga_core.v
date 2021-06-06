@@ -346,7 +346,7 @@ module vga_core (
             sprite_2_size <= 0;
 
             clear_collision <= 0;
-        end else if(wb_stb_i && wb_cyc_i && wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Writes
+        end else if(wb_stb_i && wb_cyc_i && wb_we_i && wb_addr_i[31:24] == 8'h30) begin      // Writes
             case (wb_addr_i[7:0])
                 8'h00: begin
                     { h_sync_start, h_sync_end, h_active_start } = wb_data_i;
@@ -437,7 +437,7 @@ module vga_core (
                     wb_ack_o <= 1;
                 end
             endcase
-        end else if(wb_stb_i && wb_cyc_i && !wb_we_i && wb_addr_i[31:24] == 8'h04) begin      // Reads
+        end else if(wb_stb_i && wb_cyc_i && !wb_we_i && wb_addr_i[31:24] == 8'h30) begin      // Reads
             case (wb_addr_i[7:0])
                 8'h00: begin
                     wb_data_o <= collision_bits;
